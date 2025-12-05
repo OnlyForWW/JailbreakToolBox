@@ -5,3 +5,4 @@ venv/
 .env
 ./JailbreakAttack/FigStep/internvl_deploy.py
 ./JailbreakAttack/FigStep/qwen_deploy.py
+./JailbreakAttack/FigStep/output
