@@ -1,32 +1,8 @@
 gpt:
   model_name: "gpt-5-chat-latest"
-  api_key: "sk-l4568a8SQaYERroefjKNbgmPYU5jf2ChGYOR0NlHV8LvizSJ"
-  base_url: "https://jeniya.top/v1"
+  api_key: ""
+  base_url: ""
 
-claude:
-  model_name: "claude-sonnet-4-5-20250929"
-  api_key: "sk-l4568a8SQaYERroefjKNbgmPYU5jf2ChGYOR0NlHV8LvizSJ"
-  base_url: "https://jeniya.top/v1"
-
-deepseek:
-  model_name: "deepseek-chat"
-  api_key: "sk-2927dc93f1b74166947e624d2e071151"
-  base_url: "https://api.deepseek.com"
-
-doubao:
-  model_name: "doubao-seed-1-6-251015"
-  api_key: "0ee51f09-60f3-4e43-8048-9f039796958d"
-  base_url: "https://ark.cn-beijing.volces.com/api/v3"
-
-qwen:
-  model_name: "qwen3-max"
-  api_key: "sk-0e7e94ba46c1444c8268d12fa43e11b1"
-  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-
-kimi:
-  model_name: "kimi-k2-0905-preview"
-  api_key: "sk-jwC6Tr4SSfjSAEdXbLwmNTjEHyWixdc8fraOGJz9vZCIjshO"
-  base_url: "https://api.moonshot.cn/v1"
 
 
 
