@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.so
+venv/
+.env
+.idea
+JailbreakAttack/FigStep/internvl_deploy.py
+JailbreakAttack/FigStep/qwen_deploy.py
+JailbreakAttack/FigStep/output
+config/API_My.yaml
