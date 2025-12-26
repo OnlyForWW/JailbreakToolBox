@@ -2,11 +2,17 @@
 
 ## 支持的越狱方法
 
-- FigStep
-- FC-Attack
-- CS-DJ
+- [FigStep](###FigStep)
+- [FC-Attack](###FC-Attack)
+- [CS-DJ](###CS-DJ)
+- [VisCRA](###VisCRA)
 
-## 使用案例
+## 越狱数据集制作
+
+- MM-SafetyBench Style
+  - GitHub: [isXinLiu/MM-SafetyBench: Accepted by ECCV 2024](https://github.com/isXinLiu/MM-SafetyBench)
+
+## 越狱攻击代码运行示例
 
 ### 数据集处理
 
@@ -252,6 +258,106 @@ python Inference.py
 ```
 
 - 攻击完成后，结果保存在**CS-DJ/output/cs-dj_result.json**
+
+### VisCRA
+
+Paper: [[2505.19684\] VisCRA: A Visual Chain Reasoning Attack for Jailbreaking Multimodal Large Language Models](https://arxiv.org/abs/2505.19684)
+
+Github: [DyMessi/VisCRA](https://github.com/DyMessi/VisCRA)
+
+- **请注意本项目中的VisCRA主要目的是为了适配自定义数据集，如果只是复现论文的结果，请直接使用论文的GitHub仓库。**
+- **仅支持：MM-SafetyBench风格的图文对数据集。**
+- 在此，我们假设你准备好了一个需要测试的自定义数据集，请先参考越狱数据集制作中的MM-SafetyBench，生成MM-SafetyBench风格的越狱数据集。
+- 请提前下载Qwen2.5-VL-7B-Instruction: [huggingface.co](https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct)
+- 配置**VisCRA/config.yaml**，可参考以下配置：
+
+``` yaml
+# 设置辅助模型加载路径
+auxiliary_model:
+  name: "qwen2_5-vl"
+  path: "/home/wangjy/data/Qwen2.5-VL/7B"
+  # 请注意！在多卡情况下，需要指定模型运行时的设备，否则无法获得正确的掩码图像。
+  # 至少需要一张24GB显存的GPU以确保代码可以正常运行。
+  device: "cuda:0"	
+
+# 用于指定MM-SafetyBench风格的数据集路径。
+dataset:
+  name: "mm-safebench"
+  input_json: "/home/wangjy/exp/JailbreakToolBox/GenData/MM-SafetyBench/output.json" 
+
+# 默认参数，无需修改。
+viscra:
+  vision_token: 151655
+  grid_dim: 28
+  gaussian_sigma: 14
+  attention_block_size: 12
+  attention_layer: 18
+  output_root: "./attention_mask_12(green)" 
+
+# 指定推理模型和推理结果的保存目录。
+inference:
+  model_name: "Qwen3-VL-32B"
+  output_dir: "./viscra_results"
+
+# 如果使用的是vLLM，即本地推理，无需修改。
+openai:
+  base_url: "http://localhost:8000/v1"
+  api_key: "EMPTY"
+```
+
+- 按照下面的顺序运行代码：
+
+```bash
+# 1
+python ImageMask.py
+
+# 2
+python Inference.py
+```
+
+- 运行**ImageMask.py**后，请检查**attention_mask_12(green)**目录下的**heatmap.png**是否正确生成。
+- 最后的结果在**viscra_results**目录下的JSON文件中。
+
+## 越狱数据集制作
+
+### MM-SafetyBench Style
+
+- **强烈建议：该制作流程只适用于自定义的越狱问题或是你需要测试MM-SafetyBench中不包含的越狱问题；否则请直接使用原始MM-SafetyBench。**
+- 数据集制作流程，参考了官方提供的代码。
+- 请先下载Stable-Diffusion: [stabilityai/stable-diffusion-xl-base-1.0 · Hugging Face](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
+- 在**JailbreakToolBox/config/API.yaml**中配置好需要使用的模型API，[参考](###FigStep)中的设置。
+- 配置**GenData/MM-SafetyBench/config.yaml**:
+
+``` yaml
+# 设置调用模型API
+selected_model_key: "gpt"
+
+# 设置原始问题的路径以及输出路径
+paths:
+  input_csv: "/home/wangjy/exp/JailbreakToolBox/data/harmful_question.csv"
+  output_json: "output.json"
+
+# 设置Stable-Diffusion模型的存储路径
+SD: "/home/wangjy/data/stable-diffusion-xl-base-1.0"
+```
+
+- 按照以下顺序执行代码：
+
+```bash
+# 1
+python 01_deal_question.py
+
+# 2
+python 02_gen_images.py
+
+# 3
+python 03_concat_images.py
+
+# 4
+python 04_update_json.py
+```
+
+- 运行完成后，图像保存在**GenData/MM-SafetyBench/img**中，包含了三种图像：SD\SD_TYPO\TYPO；**在输出的output.JSON文件中，默认写入了SD_TYPO下图像的绝对路径。**
 
 ## 需要说明的：
 

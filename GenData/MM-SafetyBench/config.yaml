@@ -1,0 +1,7 @@
+selected_model_key: "gpt"
+
+paths:
+  input_csv: "/home/wangjy/exp/JailbreakToolBox/data/harmful_question.csv"
+  output_json: "output.json"
+
+SD: "/home/wangjy/data/stable-diffusion-xl-base-1.0"
