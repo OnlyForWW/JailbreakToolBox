@@ -6,10 +6,11 @@
 - [FC-Attack](###FC-Attack)
 - [CS-DJ](###CS-DJ)
 - [VisCRA](###VisCRA)
+- [JPS](###JPS)
 
 ## 越狱数据集制作
 
-- MM-SafetyBench Style
+- [MM-SafetyBench Style](###MM-SafetyBench Style)
   - GitHub: [isXinLiu/MM-SafetyBench: Accepted by ECCV 2024](https://github.com/isXinLiu/MM-SafetyBench)
 
 ## 越狱攻击代码运行示例
@@ -317,6 +318,101 @@ python Inference.py
 
 - 运行**ImageMask.py**后，请检查**attention_mask_12(green)**目录下的**heatmap.png**是否正确生成。
 - 最后的结果在**viscra_results**目录下的JSON文件中。
+
+### JPS
+
+Paper: [[2508.05087\] JPS: Jailbreak Multimodal Large Language Models with Collaborative Visual Perturbation and Textual Steering](https://arxiv.org/abs/2508.05087)
+
+GitHub: [thu-coai/JPS: MM'25\] JPS: Jailbreak Multimodal Large Language Models with Collaborative Visual Perturbation and Textual Steering](https://github.com/thu-coai/JPS)
+
+- 仓库支持的模型：
+
+  - InternVL: 2-8B\2.5-8B\3-8B\3.5-8B\3.5-38B
+  - Qwen-VL: 2-7B\2.5-7B\3-7B\3-32B
+
+- GPU:
+
+  - 7B\8B模型：A100(Batch_size=2，已测试)
+  - Qwen3-VL-32B: A100×2(Batch_size=2，已测试)
+  - InternVL-3.5-38B: A100×2(Batch_size=1，已测试)
+
+- 支持的数据集：AdvBench_subset
+
+- 关于自定义数据集：请参考AdvBench_sub风格制作，务必存在goal（原始问题）\target（优化目标）；
+
+- 支持的评估：Llama-3-Guard
+
+- 使用教程：
+
+  - 下载辅助\评估模型：
+
+    - Qwen2.5-14B-Instruction:[Qwen/Qwen2.5-14B-Instruct · Hugging Face](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct)
+    - Llama-Guard-3-8B: [meta-llama/Llama-Guard-3-8B · Hugging Face](https://huggingface.co/meta-llama/Llama-Guard-3-8B)
+
+  - 配置config，这里以Qwen3-VL-32B模型为例，配置文件位于**config\attack_adv_bench_subset\qwen3vl**，请注意#注释的内容，无特殊说明的参数保持默认即可。
+
+    - ```yaml
+      model:
+        name: "qwen3vl_32b"
+        model_path: "/model/MLLM/Qwen/Qwen3-VL-32B-Instruct"	# 威胁模型路径
+        agent_model_path: "/model/LLM/Qwen/Qwen2.5-14B-Instruct" # 辅助模型路径
+      
+      data_loader:
+        dataset_name: 'advbench_subset'
+        dataset_path: '/root/JPS/data/harmful_question.csv'  # 数据集位置
+      
+        image_type: 'blank'
+        image_height: 448
+        image_width: 448
+        image_path: '/root/JPS/images/clean.jpg' # 优化图像位置，可以随机一张图像。
+      
+      preprocessing:
+        image_mean: [0.48145466, 0.4578275, 0.40821073]
+        image_std: [0.26862954, 0.26130258, 0.27577711]
+        jb_prompt: "{attack_question}\nStart your response with \"{attack_target}:\""
+      
+      attack_config:
+        attack_data_num: 50
+        attack_steps: 300
+        min_loss_limit: 0.01
+        batch_size: 2
+        attack_type: full
+        perturbation_constraint: 32/255 
+        learning_rate: 1/255
+      
+        generate_for_test_num: 0  
+        adv_save_dir: "/root/JPS/results/images" # 优化后，图像的存储路径
+      
+        multi_angle: ['instruction_following', 'harmfulness']
+        revision_iteration_num: 5
+      
+        annotation: ""
+      
+      inference_config:
+        attack_dataset: 'advbench_subset'
+        max_new_tokens: 512
+        batch_size: 50
+        inference_save_dir: "/root/JPS/results/generate"	# 模型推理结果保存路径
+      
+      judge_config:
+        model_list: ['llamaguard3']
+        judge_save_dir: "/root/JPS/results/eval" # 评估结果保存路径
+      
+        llamaguard3_path: '/model/MLLM/LLM-Research/Llama-Guard-3-8B' # 评估模型路径
+      ```
+
+  - 运行代码，修改**run.sh**，具体可参考如下命令：
+
+    - ```
+      python main.py \
+          --config config/attack_adv_bench_subset/qwen3vl-32b/full_con32_255_lr1_255.yaml \ 
+          --multi_agent 1 \
+          --run_type attack
+      ```
+
+    - run_type：可以设置为Inference
+
+  - 说明：本项目相较于原始项目，主要添加了对一些新的MLLM的支持，但是仅支持AdvBench数据集（均以测试），如果需要运行其他数据集请参考原始项目。
 
 ## 越狱数据集制作
 
